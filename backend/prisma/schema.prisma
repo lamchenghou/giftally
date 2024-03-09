@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model staff {
+  staffPassId String  @id @db.VarChar(64) @map("staff_pass_id")
+  teamName     String? @db.VarChar(64) @map("team_name")
+  team          team?   @relation(fields: [teamName], references: [teamName], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model team {
+  teamName    String   @id @db.VarChar(64) @map("team_name")
+  hasRedeemed Boolean? @default(false) @map("has_redeemed")
+  redeemedAt  String?  @db.VarChar(64) @map("redeemed_at")
+  staff        staff[]
+}
