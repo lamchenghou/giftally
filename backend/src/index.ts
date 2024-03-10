@@ -59,6 +59,17 @@ app.get("/teams/redemption-hist", async (req, res) => {
   res.json(teams);
 });
 
+// Query redemption history count
+app.get("/teams/redemption-hist/count", async (_req, res) => {
+  const count = await prisma.team.count({
+    where: {
+      hasRedeemed: true,
+    },
+  });
+
+  res.json({ count });
+});
+
 app.get("/teams/:teamname", async (req, res) => {
   const { teamname } = req.params;
 

@@ -8,3 +8,7 @@ export type RedemptionTableRowData = Omit<TeamModel, 'hasRedeemed'>;
 export interface RedeemPutData {
   collectorId: string;
 }
+
+export interface RedemptionHistoryCountGetData {
+  count: number;
+}

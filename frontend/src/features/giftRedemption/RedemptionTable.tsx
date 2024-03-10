@@ -7,10 +7,16 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import { RedemptionTableRowData } from '../../types/dashboard/redemption';
+import {
+  RedemptionHistoryCountGetData,
+  RedemptionTableRowData,
+} from '../../types/dashboard/redemption';
 import { useEffect, useState } from 'react';
 import { TeamModel } from '../../types/dashboard/teams';
-import { getRedemptionHistory } from '../../api/teamsApi';
+import {
+  getRedemptionHistory,
+  getRedemptionHistoryCount,
+} from '../../api/teamsApi';
 import { Nullable } from '../../utils/TypeUtility';
 import { convertEpochMsToDateTime } from '../../utils/TimeUtility';
 
@@ -21,7 +27,7 @@ interface RedemptionTableProps {
 const RedemptionTable: React.FC<RedemptionTableProps> = ({
   isFormSubmitting,
 }: RedemptionTableProps) => {
-  // ======================== Pagination ================================
+  // ======================== Pagination =======================================
   const onPaginationChange = (page: number, pageSize: number) => {
     setPaginationSettings((curr) => ({ ...curr, current: page, pageSize }));
   };
@@ -36,9 +42,23 @@ const RedemptionTable: React.FC<RedemptionTableProps> = ({
     pageSizeOptions: [5, 10, 20, 50],
   });
 
-  // ======================== States & Data ================================
+  // ======================== States & Data ====================================
   const [tableData, setTableData] = useState<RedemptionTableRowData[]>([]);
   const [isTableLoading, setIsTableLoading] = useState<boolean>(false);
+
+  // For the total count, to support pagination ================================
+  useEffect(() => {
+    async function fetchRedemptionHistoryCount() {
+      const data: Nullable<RedemptionHistoryCountGetData> =
+        await getRedemptionHistoryCount();
+      if (data) {
+        setPaginationSettings({ ...paginationSettings, total: data.count });
+      }
+    }
+    fetchRedemptionHistoryCount();
+  }, [isFormSubmitting]);
+
+  // For the submittion of form, and any change in paginationSettings ==========
   useEffect(() => {
     async function fetchRedemptionHistory() {
       setIsTableLoading(true);
@@ -46,7 +66,6 @@ const RedemptionTable: React.FC<RedemptionTableProps> = ({
       const offset = ((paginationSettings?.current ?? 1) - 1) * count;
       const data: TeamModel[] =
         (await getRedemptionHistory(count, offset)) ?? [];
-      console.log(data);
       if (data) {
         setTableData(
           data.map((team: TeamModel, idx: number) => ({
@@ -62,7 +81,7 @@ const RedemptionTable: React.FC<RedemptionTableProps> = ({
     fetchRedemptionHistory();
   }, [paginationSettings, isFormSubmitting]);
 
-  // ======================== TableColumns ================================
+  // ======================== TableColumns =====================================
   const renderCollectorIdCell = (collectorId: Nullable<string>) => {
     if (collectorId === null) {
       return <p>Not yet redeemed.</p>;
@@ -117,6 +136,7 @@ const RedemptionTable: React.FC<RedemptionTableProps> = ({
             dataSource={tableData}
             sticky
             bordered
+            pagination={false}
           />
         )}
       </div>

@@ -8,7 +8,6 @@ export const searchStaff = async (searchStr: string) => {
     const response = await axios.get<StaffModel[]>(
       `${API_BASE_URL}?search=${searchStr}`,
     );
-    console.log(response.data);
     return response.data;
   } catch (err) {
     console.error('Error fetching staff.');
