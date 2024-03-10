@@ -7,6 +7,9 @@ export enum GovTechColors {
 }
 
 export const APP_THEME = {
+  token: {
+    colorPrimary: GovTechColors.GREEN,
+  },
   components: {
     Layout: {
       headerPadding: '0 0 0 15px',
@@ -19,6 +22,9 @@ export const APP_THEME = {
     Menu: {
       darkItemHoverColor: GovTechColors.GREEN,
       darkItemSelectedBg: GovTechColors.GREEN,
+    },
+    Card: {
+      headerBg: GovTechColors.YELLOW,
     },
   },
 };
