@@ -8,14 +8,18 @@ datasource db {
 }
 
 model staff {
-  staffPassId String  @id @db.VarChar(64) @map("staff_pass_id")
-  teamName     String? @db.VarChar(64) @map("team_name")
-  team          team?   @relation(fields: [teamName], references: [teamName], onDelete: NoAction, onUpdate: NoAction)
+  staffPassId      String  @id @map("staff_pass_id") @db.VarChar(64)
+  teamName         String? @map("team_name") @db.VarChar(64)
+  createdAt        String  @map("created_at") @db.VarChar(64)
+  team             team?   @relation(fields: [teamName], references: [teamName], onDelete: NoAction, onUpdate: NoAction)
+  teamCollectedFor team[]  @relation("TeamCollector")
 }
 
 model team {
-  teamName    String   @id @db.VarChar(64) @map("team_name")
+  teamName    String   @id @map("team_name") @db.VarChar(64)
   hasRedeemed Boolean? @default(false) @map("has_redeemed")
-  redeemedAt  String?  @db.VarChar(64) @map("redeemed_at")
-  staff        staff[]
+  redeemedAt  String?  @map("redeemed_at") @db.VarChar(64)
+  collectorId String?  @map("collector_id") @db.VarChar(64)
+  staff       staff[]
+  collector   staff?   @relation("TeamCollector", fields: [collectorId], references: [staffPassId], onDelete: NoAction, onUpdate: NoAction)
 }
