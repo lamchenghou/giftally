@@ -156,6 +156,9 @@ We use prettier to format the code and ESLint to highlight the issues.
 
 Refer to the User Guide to setup the database. The User Guide also contains useful commands.
 
+> Small note: My DB runs on port 3000. Ensure there are no applications
+> running on that port. This was an issue encountered during a smoke test.
+
 # Design choices
 
 ## Folder Structure
