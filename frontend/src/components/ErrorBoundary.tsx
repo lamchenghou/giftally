@@ -3,6 +3,8 @@
 // the more code-intensive legacy version more interesting.
 
 import React, { ReactNode } from 'react';
+import ErrorStatusPage from './ErrorStatusPage';
+import { message } from 'antd';
 
 interface ErrorBoundaryProps {
   fallback: ReactNode;
@@ -32,7 +34,8 @@ class ErrorBoundary extends React.Component<
 
   render() {
     if (this.state.hasError) {
-      return <h1>Something wong</h1>;
+      message.warning('Error encountered. Please refresh.');
+      return <ErrorStatusPage errorImg="govtech-error.png" />;
     }
     return this.props.children;
   }

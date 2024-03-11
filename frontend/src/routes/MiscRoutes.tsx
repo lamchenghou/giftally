@@ -1,9 +1,14 @@
 import { RouteObject } from 'react-router';
-import NotFoundPage from '../components/NotFoundPage';
+import ErrorStatusPage from '../components/ErrorStatusPage';
+import HomePage from '../components/Homepage';
 
 export const MISC_ROUTES: RouteObject[] = [
   {
+    path: '/',
+    element: <HomePage />,
+  },
+  {
     path: '*',
-    element: <NotFoundPage />,
+    element: <ErrorStatusPage errorImg="govtech-not-found.png" />,
   },
 ];
