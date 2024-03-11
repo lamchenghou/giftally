@@ -1,8 +1,8 @@
 import { Button, Card, Form, Select, SelectProps } from 'antd';
 import { useCallback, useState } from 'react';
-import { searchStaff } from '../../api/staffApi';
+import { getStaffCountForTeam, searchStaff } from '../../api/staffApi';
 import { StaffModel } from '../../types/dashboard/staff';
-import { getTeam, reedemForTeam } from '../../api/teamsApi';
+import { getTeam, redeemForTeam } from '../../api/teamsApi';
 import { debounce } from 'lodash';
 import { GiftOutlined, TeamOutlined } from '@ant-design/icons';
 import RedemptionStatus from './RedemptionStatus';
@@ -13,7 +13,11 @@ interface RedemptionFormStruct {
 }
 
 interface RedemptionFormProps {
-  handleShowSuccess: (teamName: string, staffId: string) => void;
+  handleShowSuccess: (
+    teamName: string,
+    staffId: string,
+    staffCount: number,
+  ) => void;
   isFormSubmitting: boolean;
   setIsFormSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -88,19 +92,24 @@ const RedemptionForm: React.FC<RedemptionFormProps> = ({
   const handleSubmitForm = async (_values: RedemptionFormStruct) => {
     async function handleRedeem() {
       setIsFormSubmitting(true);
-      await reedemForTeam(
+      await redeemForTeam(
         teamSelected,
         redemptionForm.getFieldValue('staffPassIdFormInput'),
       );
-      // Do something with response
+      // Get staff count
+      const staffData = await getStaffCountForTeam(teamSelected);
       setIsFormSubmitting(false);
+
+      return staffData ? staffData.count : 1;
     }
-    handleRedeem();
-    // Show success to user
+    const staffCount = await handleRedeem();
+    // Show success and staff count to user
     handleShowSuccess(
       teamSelected,
       redemptionForm.getFieldValue('staffPassIdFormInput'),
+      staffCount,
     );
+
     // Clean up
     resetLocalState();
   };
@@ -163,11 +172,7 @@ const RedemptionForm: React.FC<RedemptionFormProps> = ({
           type="primary"
           onClick={redemptionForm.submit}
           icon={<GiftOutlined style={{ color: GovTechColors.GREEN }} />}
-          className={
-            selectedTeamRedemptionStatus
-              ? 'animate-bounce hover:animate-pulse'
-              : ''
-          }
+          className={selectedTeamRedemptionStatus ? 'animate-bounce' : ''}
           disabled={
             teamSelected === '' ||
             isFormSubmitting ||

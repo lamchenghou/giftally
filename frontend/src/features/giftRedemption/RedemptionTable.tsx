@@ -58,7 +58,7 @@ const RedemptionTable: React.FC<RedemptionTableProps> = ({
     fetchRedemptionHistoryCount();
   }, [isFormSubmitting]);
 
-  // For the submittion of form, and any change in paginationSettings ==========
+  // For the submission of form, and any change in paginationSettings ==========
   useEffect(() => {
     async function fetchRedemptionHistory() {
       setIsTableLoading(true);
@@ -112,7 +112,7 @@ const RedemptionTable: React.FC<RedemptionTableProps> = ({
       render: renderCollectorIdCell,
     },
     {
-      title: 'Reedemed at',
+      title: 'Redeemed at',
       dataIndex: 'redeemedAt',
       key: 'redeemedAt',
       render: renderRedeemedAtCell,
@@ -124,12 +124,16 @@ const RedemptionTable: React.FC<RedemptionTableProps> = ({
       <div className="flex flex-row">
         <Text className="text-xl mb-4 font-semibold">Redemption History</Text>
         {!isTableLoading && (
-          <Pagination className="ml-auto" {...paginationSettings} />
+          <Pagination
+            className="ml-auto"
+            {...paginationSettings}
+            data-testid="paginationAlwaysPresent"
+          />
         )}
       </div>
       <div className="flex flex-row justify-center">
         {isTableLoading ? (
-          <Spin tip="Loading" className="mt-10" />
+          <Spin className="mt-10" />
         ) : (
           <Table
             columns={tableColumns}
@@ -137,6 +141,7 @@ const RedemptionTable: React.FC<RedemptionTableProps> = ({
             sticky
             bordered
             pagination={false}
+            data-testid="tableAlwaysPresent"
           />
         )}
       </div>
