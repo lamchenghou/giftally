@@ -21,8 +21,8 @@ const PageWrapper: React.FC<PageWrapperProps> = ({
     ...breadcrumbs,
   ];
   return (
-    <div className="min-h-[100vh] flex flex-col">
-      <Breadcrumb className="h-full" items={breadCrumbItems} />
+    <div className="flex flex-col">
+      <Breadcrumb className="h-full mb-1 ml-2" items={breadCrumbItems} />
       <Card className="flex-grow">{children}</Card>
     </div>
   );

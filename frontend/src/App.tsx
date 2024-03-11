@@ -1,4 +1,3 @@
-import './App.css';
 import { ALL_ROUTES } from './routes/routes';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { wrapRoutes } from './utils/RouteUtility';
