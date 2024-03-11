@@ -7,3 +7,9 @@ export interface TeamModel {
   redeemedAt: Nullable<string>;
   collectorId: Nullable<string>;
 }
+
+export type TeamListTableRowData = TeamModel;
+
+export interface TeamsCountGetData {
+  count: number;
+}

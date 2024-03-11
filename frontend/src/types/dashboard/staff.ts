@@ -3,3 +3,7 @@ export interface StaffModel {
   teamName: string;
   createdAt: string;
 }
+
+export interface StaffCountGetData {
+  count: number;
+}
