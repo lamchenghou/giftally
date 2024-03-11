@@ -14,13 +14,20 @@ As this is a fullstack application, without deployment, we need to first **setup
 1. Ensure you have a local postgres server running. (Relevant guides: [MacOS](https://www.atlassian.com/data/admin/how-to-start-postgresql-server-on-mac-os-x), [Windows](https://www.prisma.io/dataguide/postgresql/setting-up-a-local-postgresql-database))
 2. In the `.env` file in the `backend` folder (committed for this project), modify `DATABASE_URL` to follow your PostgreSQL user credentials
 
-An example if given below:
+Ensure your user has `CREATEDB` privileges in postgres. To set this permission:
+
+```
+psql postgres
+ALTER USER yourusernamehere CREATEDB;
+```
+
+An example of the `.env` file in `backend` is given below:
 
 ```
 DATABASE_URL="postgresql://ally:yourallyingivingthebestgifts@localhost:5432/giftallydb?schema=public"
 ```
 
-3. Go to the root folder `GiftAlly` (same folder as this `README.md`) and execute:
+3. Go to the root folder `giftally` (same folder as this `README.md`) and execute:
 
 ```
 npm run setup-db
@@ -30,9 +37,18 @@ This will both create the db in postgres and seed it with all the data parsed fr
 
 ### To run the application
 
-1. Go to the root folder `GiftAlly` and execute:
+1. Got to both `backend` and `frontend` folders to execute:
 
 ```
+npm install
+```
+
+This will allow access to `vite` scripts etc.
+
+2. Go to the root folder `giftally` and execute:
+
+```
+npm install
 npm run giftally
 ```
 
@@ -40,7 +56,7 @@ npm run giftally
 
 ### To test the application
 
-1. Go to the root folder GiftAlly and execute:
+1. Go to the root folder `giftally` and execute:
 
 ```
 npm test
@@ -139,6 +155,9 @@ We use prettier to format the code and ESLint to highlight the issues.
 ### Setting up database
 
 Refer to the User Guide to setup the database. The User Guide also contains useful commands.
+
+> Small note: My DB runs on port 3000. Ensure there are no applications
+> running on that port. This was an issue encountered during a smoke test.
 
 # Design choices
 
