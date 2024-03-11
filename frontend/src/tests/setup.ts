@@ -1,9 +1,12 @@
-import { afterEach } from 'vitest';
+import { afterEach, beforeAll, beforeEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 // Reset handlers for test isolation, and runs a clean after each test case
 // (e.g. clearing jsdom)
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 afterEach(() => {
   cleanup();
 });

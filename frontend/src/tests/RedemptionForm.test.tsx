@@ -1,14 +1,10 @@
 import {
-  ByRoleMatcher,
-  ByRoleOptions,
   Matcher,
   MatcherOptions,
-  SelectorMatcherOptions,
   fireEvent,
   render,
   screen,
   waitFor,
-  waitForOptions,
 } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import RedemptionForm from '../features/giftRedemption/RedemptionForm';
@@ -26,6 +22,8 @@ import * as staffHooks from '../api/staffApi';
  *   an eligible team.
  * - We also test the correct team eligibility display for staff from
  *   teams that have already redeemed.
+ * - Finally, we will test that the form is cleared and redeem button is
+ *   disabled, upon redemption for an eligible team.
  * - This would also be testing RedemptionStatus.tsx
  */
 const eligibleStaffs = [
@@ -57,7 +55,36 @@ const ineligibleTeam: TeamModel = {
   redeemedAt: null,
   collectorId: null,
 };
+// ========== Reuseable Global Assertion Methods ==========
+export async function expectInputValueToUiTextResult(
+  inputTestId: string,
+  inputValue: string,
+  expectedTextToShowUpInUi: string,
+  getByTestId: (
+    id: Matcher,
+    options?: MatcherOptions | undefined,
+  ) => HTMLElement,
+) {
+  const selectInput = getByTestId(inputTestId).querySelector('input');
+  // If you're reading through this, I spent 2 hours trying to emulate
+  // clicking on the input box, to no avail haha. Might be due to the
+  // nest of antd components.
+  fireEvent.change(selectInput as Element, { target: { value: inputValue } });
+  expect(selectInput?.value).toBe(inputValue);
 
+  // E.g. Verify that dropdown appears with 'eligibleStaff'
+  await waitFor(
+    () => {
+      // Check for the presence of the element by its text content
+      expect(
+        screen.getAllByText(new RegExp(expectedTextToShowUpInUi, 'i'))[0],
+      ).toBeInTheDocument();
+    },
+    { timeout: 5000 },
+  );
+
+  return selectInput;
+}
 // ========== RedemptionForm Test Suite ==========
 describe('RedemptionForm', () => {
   // ========== Setup test suite ==========
@@ -96,16 +123,10 @@ describe('RedemptionForm', () => {
     const searchStaffStub = vi.spyOn(staffHooks, 'searchStaff');
 
     // Mock hooks to return eligible teams and staff
-    getTeamStub.mockImplementation((teamName: string) => {
-      console.log(
-        `[TEST LOG] Mock implementation of getTeam called with input ${teamName}`,
-      );
+    getTeamStub.mockImplementation((_teamName: string) => {
       return Promise.resolve(eligibleTeam);
     });
-    searchStaffStub.mockImplementation((searchStr: string) => {
-      console.log(
-        `[TEST LOG] Mock implementation of searchStaff called with input ${searchStr}.`,
-      );
+    searchStaffStub.mockImplementation((_searchStr: string) => {
       return Promise.resolve(eligibleStaffs);
     });
     return [getTeamStub, searchStaffStub];
@@ -113,47 +134,22 @@ describe('RedemptionForm', () => {
   function generateIneligibleCaseStub() {
     const getTeamStub = vi.spyOn(teamHooks, 'getTeam');
     const searchStaffStub = vi.spyOn(staffHooks, 'searchStaff');
+    const redeemForTeamStub = vi.spyOn(teamHooks, 'redeemForTeam');
 
     // Mock hooks to return eligible teams and staff
-    getTeamStub.mockImplementation((teamName: string) => {
-      console.log(
-        `[TEST LOG] Mock implementation of getTeam called with input ${teamName}`,
-      );
+    getTeamStub.mockImplementation((_teamName: string) => {
       return Promise.resolve(ineligibleTeam);
     });
-    searchStaffStub.mockImplementation((searchStr: string) => {
-      console.log(
-        `[TEST LOG] Mock implementation of searchStaff called with input ${searchStr}.`,
-      );
+    searchStaffStub.mockImplementation((_searchStr: string) => {
       return Promise.resolve(ineligibleStaffs);
     });
-    return [getTeamStub, searchStaffStub];
-  }
-
-  async function expectInputValueToUiTextResult(
-    inputTestId: string,
-    inputValue: string,
-    expectedTextToShowUpInUi: string,
-  ) {
-    const selectInput = getByTestId(inputTestId).querySelector('input');
-    // If you're reading through this, I spent 2 hours trying to emulate
-    // clicking on the input box, to no avail haha. Might be due to the
-    // nest of antd components.
-    fireEvent.change(selectInput as Element, { target: { value: inputValue } });
-    expect(selectInput?.value).toBe(inputValue);
-
-    // E.g. Verify that dropdown appears with 'eligibleStaff'
-    await waitFor(
-      () => {
-        // Check for the presence of the element by its text content
-        expect(
-          screen.getAllByText(new RegExp(expectedTextToShowUpInUi, 'i'))[0],
-        ).toBeInTheDocument();
+    redeemForTeamStub.mockImplementation(
+      async (_teamName: string, _collectorId: string) => {
+        // using any dummy team will do
+        return Promise.resolve(eligibleTeam);
       },
-      { timeout: 5000 },
     );
-
-    return selectInput;
+    return [getTeamStub, searchStaffStub, redeemForTeamStub];
   }
 
   // ========== Test Cases ==========
@@ -163,7 +159,8 @@ describe('RedemptionForm', () => {
   });
 
   it('enables the redeem button and display eligible status upon eligible team selected', async () => {
-    const [getTeamStub, _searchStaffStub] = generateEligibleCaseStub();
+    const [getTeamStub, _searchStaffStub, _redeemForTeamStub] =
+      generateEligibleCaseStub();
     // Ensure redeemButton is disabled at the start
     expectElementToBeDisabledByTestId('redeemButtonAlwaysPresent');
 
@@ -172,6 +169,7 @@ describe('RedemptionForm', () => {
       'inputBoxAlwaysPresent',
       'eligible',
       'eligibleStaff',
+      getByTestId,
     );
     // Emualate user clicking on the option
     fireEvent.click(screen.getAllByText('eligibleStaff')[1]);
@@ -198,6 +196,7 @@ describe('RedemptionForm', () => {
       'inputBoxAlwaysPresent',
       'staff',
       'ineligibleStaff',
+      getByTestId,
     );
 
     // Emualate user clicking on te option
@@ -227,6 +226,7 @@ describe('RedemptionForm', () => {
       'inputBoxAlwaysPresent',
       'eligible',
       'eligibleStaff',
+      getByTestId,
     );
     // Emualate user clicking on the option
     fireEvent.click(screen.getAllByText('eligibleStaff')[1]);
