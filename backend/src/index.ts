@@ -17,6 +17,7 @@ app.use((_req, res, next) => {
   next();
 });
 
+// ========== Staff API ==========
 app.get("/staff", async (req, res) => {
   const searchQueryParam = req.query.search as string;
   if (searchQueryParam) {
@@ -35,9 +36,44 @@ app.get("/staff", async (req, res) => {
   }
 });
 
-app.get("/teams", async (_req, res) => {
-  const teams = await prisma.team.findMany();
+app.get("/staff/count", async (req, res) => {
+  const searchQueryParam = req.query.team as string;
+  if (searchQueryParam) {
+    const count = await prisma.staff.count({
+      where: {
+        teamName: searchQueryParam,
+      },
+    });
+    res.json({ count });
+  } else {
+    res.json({ count: 0 });
+  }
+});
+
+// ========== Teams API ==========
+app.get("/teams", async (req, res) => {
+  const count = Number(req.query.count);
+  const offset = Number(req.query.offset);
+
+  const teams = await prisma.team.findMany({
+    orderBy: [
+      {
+        hasRedeemed: "desc",
+      },
+      {
+        redeemedAt: "desc",
+      },
+    ],
+    skip: offset,
+    take: count,
+  });
   res.json(teams);
+});
+
+app.get("/teams/count", async (_req, res) => {
+  const count = await prisma.team.count();
+
+  res.json({ count });
 });
 
 // Query redemption history
@@ -86,6 +122,7 @@ app.get("/teams/:teamname", async (req, res) => {
   res.json(team);
 });
 
+// ========== Teams API - Redemption ==========
 app.put("/teams/:teamname/redeem", async (req, res) => {
   // Request body
   const body = req.body;
@@ -118,6 +155,41 @@ app.put("/teams/:teamname/redeem", async (req, res) => {
         hasRedeemed: true,
         redeemedAt: String(Date.now()),
         collectorId: body.collectorId,
+      },
+    });
+
+    res.json(updatedTeamData);
+  }
+});
+
+app.put("/teams/:teamname/unredeem", async (req, res) => {
+  // URL params
+  const { teamname } = req.params;
+  // Get the team to do perform a check on whether they can redeem
+  const initialTeamData = await prisma.team.findFirst({
+    where: { teamName: teamname },
+    select: { hasRedeemed: true },
+  });
+
+  if (initialTeamData === null) {
+    res.status(404).send("Team not found.");
+  }
+
+  if (initialTeamData?.hasRedeemed === false) {
+    res
+      .status(400)
+      .send(
+        `Team has not redeemed. hasRedeemed: ${JSON.stringify(initialTeamData)}`
+      );
+  } else {
+    const updatedTeamData = await prisma.team.update({
+      where: {
+        teamName: teamname,
+      },
+      data: {
+        hasRedeemed: false,
+        redeemedAt: null,
+        collectorId: null,
       },
     });
 
