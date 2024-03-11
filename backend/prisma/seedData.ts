@@ -25001,4 +25001,52 @@ export const staffData = [
     teamName: "SLYTHERIN",
     createdAt: "1636666804082",
   },
+  ////////////////////////////////////////////////////////////////////////////
+  // All data below this is additional (not provided by GovTech)           ///
+  ////////////////////////////////////////////////////////////////////////////
+  {
+    staffPassId: "NUS_01",
+    teamName: "TEAM NUS",
+    createdAt: "1710074503274",
+  },
+  {
+    staffPassId: "GDS_01",
+    teamName: "Government Digital Services",
+    createdAt: "1710074503274",
+  },
+  {
+    staffPassId: "DSPO_01",
+    teamName: "Digital Strategy",
+    createdAt: "1710074503274",
+  },
+  {
+    staffPassId: "DSAI_01",
+    teamName: "Data Science and AI",
+    createdAt: "1710074503274",
+  },
+  {
+    staffPassId: "CS_01",
+    teamName: "Cyber Security Group",
+    createdAt: "1710074503274",
+  },
+  {
+    staffPassId: "CMG_01",
+    teamName: "Communications",
+    createdAt: "1710074503274",
+  },
+  {
+    staffPassId: "TO_01",
+    teamName: "Transformation Office",
+    createdAt: "1710074503274",
+  },
+  {
+    staffPassId: "SCT_01",
+    teamName: "Smart City Technology",
+    createdAt: "1710074503274",
+  },
+  {
+    staffPassId: "SG_01",
+    teamName: "Services Group",
+    createdAt: "1710074503274",
+  },
 ];
